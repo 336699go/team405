@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Team 405">
+    <meta name="description" content="Self-care incentive website">
+    <meta name="keywords" content="health">
+    <title>Profile</title>
+    <style media="all">
+        /*ID Styles*/
+        #ageBlock {
+            width: 19%;
+            display: block;
+            border: 2px dotted #6d819c;
+            float: left;
+            border-radius: 5px;
+            padding-bottom: 1%;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #heightBlock {
+            width: 19%;
+            margin-left: 1%;
+            display: block;
+            border: 2px dotted #6d819c;
+            float: left;
+            border-radius: 5px;
+            padding-bottom: 1%;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #weightBlock {
+            width: 19%;
+            margin-left: 1%;
+            display: block;
+            border: 2px dotted #6d819c;
+            float: left;
+            border-radius: 5px;
+            padding-bottom: 1%;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #muscleBlock {
+            width: 19%;
+            margin-left: 1%;
+            display: block;
+            border: 2px dotted #6d819c;
+            float: left;
+            border-radius: 5px;
+            padding-bottom: 1%;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #bfBlock {
+            width: 19%;
+            margin-left: 81%;
+            display: block;
+            border: 2px dotted #6d819c;
+            border-radius: 5px;
+            padding-bottom: 1%;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #basalBlock {
+            width: 30%;
+            height: 300px;
+            margin-top: 2%;
+            display: block;
+            border: 2px dotted #6d819c;
+            float: left;
+            border-radius: 5px;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #bfMuscleBlock {
+            width: 68%;
+            height: 300px;
+            margin-top: 2%;
+            margin-left: 32%;
+            display: block;
+            border: 2px dotted #6d819c;
+            border-radius: 5px;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #weightControlBlock {
+            width: 100%;
+            height: 100px;
+            margin-top: 2%;
+            display: block;
+            border: 2px dotted #6d819c;
+            border-radius: 5px;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #basal_result, #dietRecommendation {
+            margin-left: 15px;
+            margin-top: 15px;
+            font-size: 180%;
+            font-family: Helvetica;
+        }
+        #age, #height, #weight, #muscle, #body_fat {
+            width: 95%;
+            font-size: 200%;
+            text-align: center;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            border-bottom: 10%;
+            margin-left: 1%;
+        }
+    </style>
+    <link rel="stylesheet" href="css/common.css" type="text/css" media="all">
+    <script src="js/CurrentDateTime.js">
+    </script>
+    <script>
+        localStorage.setItem('basal_value', -1);
+        localStorage.setItem('point_value', 0);
+        var body_fat = 0.0;
+        var musclePct = 0.0;
+
+        function getBasal() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const age = parseFloat(document.getElementById('age').value);
+            if (weight == 0 || height == 0 || age == 0) {
+                return "";
+            }
+            const result = 66.47 + (13.75 * weight) + (5 * height) - (6.76 * age);
+            return result.toFixed(2) + " kcal";
+        }
+
+        function printBasal() {
+            document.getElementById("basal_result").innerText = getBasal();
+            localStorage.basal_value = getBasal();
+        }
+
+        function printActivity(event) {
+            const result = parseFloat(event.target.value) * getBasal();
+            document.getElementById("activity_result").innerText = result.toFixed(2);
+        }
+
+        function printBodyFat() {
+            const val = document.getElementById('body_fat').value;
+            body_fat = parseFloat(val);
+            var x = document.getElementById("arrow_bf");
+            var temp;
+
+            if (body_fat < 4) {
+                temp = 3;   
+            } else if (body_fat <= 8) {
+                temp = (body_fat - 4) * 18 / 4 + 3;
+            } else if (body_fat <= 12) {
+                temp = ((body_fat - 8) * 18 / 4) + 21;
+            } else if (body_fat <= 18) {
+                temp = ((body_fat - 12) * 18 / 6) + 39;
+            } else if (body_fat <= 25) {
+                temp = ((body_fat - 18) * 18 / 7) + 57;
+            } else if (body_fat <= 30) {
+                temp = ((body_fat - 25) * 18 / 5) + 75;
+            } else if (body_fat > 30) {
+                temp = 93;
+            } else {
+                temp = 0;
+            }
+
+            temp = temp.toFixed(2) + 3;
+            temp = temp.toString();
+            temp = temp + "%";
+            x.style.marginLeft = temp;
+            getDietRecommendation();
+        }
+
+        function printMuscle() {
+            const val = document.getElementById('muscle').value;
+            const weight = parseFloat(document.getElementById('weight').value);
+            const muscle = parseFloat(val);
+            musclePct = muscle / weight;
+            var x = document.getElementById("arrow_m");
+            if (musclePct > 0.44) {
+                x.style.marginLeft = "93%";   
+            } else if (musclePct > 0.26) {
+                var temp = (musclePct * 100 - 26) * 90 / 18 + 3;
+                temp = temp.toFixed(2) + 3;
+                temp = temp.toString();
+                temp = temp + "%";
+                x.style.marginLeft = temp;
+            } else {
+                x.style.marginLeft = "3%";
+            }
+            getDietRecommendation();
+        }
+
+        function addPoints(add) {
+            var points = parseInt(localStorage.point_value);
+            points = points + add;
+            document.getElementById("points").innerText = "Points: " + points;
+            localStorage.point_value = points;
+        }
+
+        function getDietRecommendation() {
+            if (musclePct == 0 || body_fat == 0) {
+                return;
+            }
+
+            if (body_fat > 18) {
+                if (musclePct < 0.32) {
+                    document.getElementById("dietRecommendation").innerText = "You MUST lose your weight!";
+                } else {
+                    document.getElementById("dietRecommendation").innerText = "You should lose your weight";
+                }
+            } else if (body_fat < 12) {
+                document.getElementById("dietRecommendation").innerText = "You should increase your weight";
+            } else {
+                document.getElementById("dietRecommendation").innerText = "";
+            }
+        }
+
+        function updateWeight() {
+            printBasal();
+            printMuscle();
+        }
+    </script>
+    <nav id="topMenu">
+        <ul>
+            <li><a href="index.html">Profile</a></li>
+            <li><a href="activity.html">Activity</a></li>
+            <li><a href="diet.html">Diet Management</a></li>
+        </ul>
+    </nav>
+</head>
+
+<body>
+    <div id="mainContainer">
+        <!--Page Header-->
+        <h1 id="header">
+            <script>
+                window.onload = function getToday() {
+                    date = new Date();
+                    year = date.getFullYear();
+                    month = date.getMonth() + 1;
+                    day = date.getDate();
+                    document.getElementById("header").innerText = day + "-" + month + "-" + year;
+                }
+            </script>
+        </h1>
+
+        <!--Age-->
+        <div id="ageBlock">
+            <dl>
+                <dt id="title">Age</dt>
+                <br />
+                <input id='age' value = 0 onchange='printBasal()' />
+                <br /> <br />
+            </dl>
+        </div>
+
+        <!--Height-->
+        <div id="heightBlock">
+            <dl>
+                <dt id="title">Height</dt>
+                <br />
+                <input id='height' value = 0 onchange='printBasal()' />
+                <div id = 'unit'>cm</div>
+            </dl>
+        </div>
+
+        <!--Weight-->
+        <div id="weightBlock">
+            <dl>
+                <dt id="title">Weight</dt>
+                <br />
+                <input id='weight' value = 0 onchange='updateWeight()' />
+                <div id = 'unit'>kg</div>
+            </dl>
+        </div>
+
+        <!--Muscle-->
+        <div id="muscleBlock">
+            <dl>
+                <dt id="title">Muscle Mass</dt>
+                <br />
+                <input id='muscle' value = 0 onchange='printMuscle()' />
+                <div id = 'unit'>kg</div>
+            </dl>
+        </div>
+
+        <!--Body Fat-->
+        <div id="bfBlock">
+            <dl>
+                <dt id="title">Body Fat Percentage</dt>
+                <br />
+                <input id='body_fat' value = 0 onchange='printBodyFat()' />
+                <div id = 'unit'>%</div>
+            </dl>
+        </div>
+
+        <!--Basal Metabolic Rate-->
+        <div id="basalBlock">
+            <br />
+            <div id="title">Basal Metabolic Rate</div>
+            <div id='basal_result'></div>
+
+        </div>
+
+        <!--Body fat and muscle mass results-->
+        <div id="bfMuscleBlock">
+            <br />
+            <div id="title">Muscle Mass </div>
+            <div> <img src="image/muscle_graph.png" alt="image not found" title="muscle_graph" style="width:90%;margin-left: 5%"> </div>
+            <div><img id = 'arrow_m' src="image/arrow.PNG" alt="image not found" title="arrow_image" style="margin-left: 3%"></div>
+            <br /><br />
+            <div id="title">Body Fat Percentage</div>
+            <div> <img src="image/bf_graph.png" alt="image not found" title="bf_graph" style="width:90%; margin-left: 5%"> </div>
+            <div><img id = 'arrow_bf' src="image/arrow.PNG" alt="image not found" title="arrow_image" style="margin-left: 3%"></div>
+            <br /><br />
+        </div>
+
+        <!--Weight Control Recommendation-->
+        <div id="weightControlBlock">
+            <br />
+            <div id="title">Weight Control Recommendation</div>
+            <div id = "dietRecommendation"></div>
+            <br />
+        </div>
+
+        <!--Page Footer-->
+        <div id="footer">
+            <br />
+            <div id='plus'>+0</div>
+            <div id='points'><img src onerror='addPoints(0)'></div>
+            <br />
+        </div>
+    </div>
+</body>
+
+</html>
