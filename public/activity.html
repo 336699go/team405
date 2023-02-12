@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Team 405">
+    <meta name="description" content="Self-care incentive website">
+    <meta name="keywords" content="health">
+    <title>Activity</title>
+    <style media="all">
+        /*ID Styles*/
+        #slpBlock {
+            width: 32%;
+            height: 150px;
+            display: block;
+            float: left;
+            border: 2px dotted #6d819c;
+            border-radius: 5px;
+            padding-bottom: 1%;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #waterBlock {
+            width: 32%;
+            height: 150px;
+            margin-left: 2%;
+            display: block;
+            float: left;
+            border: 2px dotted #6d819c;
+            border-radius: 5px;
+            padding-bottom: 1%;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #activityInputBlock {
+            width: 32%;
+            height: 150px;
+            margin-left: 68%;
+            display: block;
+            border: 2px dotted #6d819c;
+            border-radius: 5px;
+            padding-bottom: 1%;
+            color: #000000;
+            background-color: #ffffff;
+        }
+        #activityBlock {
+            width: 100%;
+            margin-top: 2%;
+            display: block;
+            border-radius: 5px;
+            color: #000000;
+            background-color: #55967e;
+            margin-bottom: 2%;
+        }
+        #tdeeBlock {
+            width: 100%;
+            margin-top: 2%;
+            display: block;
+            border-radius: 5px;
+            color: #000000;
+            background-color: #f5eb65;
+            margin-bottom: 2%;
+        }
+        #activity_result {
+            font-size: 200%;
+            text-align: center;
+        }
+        #tdee_result {
+            font-size: 200%;
+            text-align: center;
+        }
+        #water {
+            width: 95%;
+            font-size: 200%;
+            text-align: center;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            border-bottom: 10%;
+            margin-left: 1%;
+        }
+        #bedtime, #risingtime {
+            width: 30%;
+            font-size: 200%;
+            text-align: center;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            border-bottom: 10%;
+            margin-left: 1%;
+        }
+        #sleeping_result, #water_result {
+            color: #ff0000;
+        }
+        #cur_basal {
+            float: right;
+            margin-right: 3%;
+            font-size: 90%;
+            opacity: 80%;
+        }
+    </style>
+    <link rel="stylesheet" href="css/common.css" type="text/css" media="all">
+    <link rel="stylesheet" href="css/single_column.css" type="text/css" media="screen and (max-width: 748px)">
+    </script>
+    <script>
+        function printSleepingHours() {
+            const val1 = document.getElementById('bedtime').value;
+            const val2 = document.getElementById('risingtime').value;
+
+            var bedtime = parseInt(val1.substr(0, 2));
+            bedtime = bedtime * 60 + parseInt(val1.substr(3, 2));
+            var risingtime = parseInt(val2.substr(0, 2));
+            risingtime = risingtime * 60 + parseInt(val2.substr(3, 2));
+
+            var sleepingTime = risingtime - bedtime;
+            if (sleepingTime < 0) {
+                sleepingTime = sleepingTime + 60 * 24;
+            }
+            const sleepingHr = parseInt(sleepingTime / 60);
+            const sleepingMin = sleepingTime % 60;
+
+            document.getElementById("sleeping_hours").innerText = "You slept " + sleepingHr + " hours " + sleepingMin + " minutes";
+            if (sleepingHr >= 7 && sleepingHr <= 9) {
+                addPoints(5);
+                element = document.getElementById("sleeping_result");
+                element.innerText = "You earned 5 point!";
+                element.classList.remove("pointAlertAnimation");
+                element.offsetWidth = element.offsetWidth;
+                element.classList.add("pointAlertAnimation");
+
+                element2 = document.getElementById("plus");
+                element2.innerText = "+5";
+                element2.classList.remove("addPointAnimation");
+                element2.offsetWidth = element.offsetWidth;
+                element2.classList.add("addPointAnimation");
+            }
+        }
+
+        function printWater() {
+            const val = document.getElementById('water').value;
+            const waterAmount = parseFloat(val);
+            if (waterAmount >= 0.25 && waterAmount <= 2.0) {
+                const addingPoint = parseInt(waterAmount / 0.25);
+                addPoints(addingPoint);
+                element = document.getElementById("water_result");
+                element.innerText = "You earned " + addingPoint + " points!";
+                element.classList.remove("pointAlertAnimation");
+                element.offsetWidth = element.offsetWidth;
+                element.classList.add("pointAlertAnimation");
+
+                element2 = document.getElementById("plus");
+                element2.innerText = "+" + addingPoint;
+                element2.classList.remove("addPointAnimation");
+                element2.offsetWidth = element2.offsetWidth;
+                element2.classList.add("addPointAnimation");
+            } else if (waterAmount > 2.0) {
+                const addingPoint = 8;
+                addPoints(addingPoint);
+                element = document.getElementById("water_result");
+                element.innerText = "You earned " + addingPoint + " points!";
+                element.classList.remove("pointAlertAnimation");
+                element.offsetWidth = element.offsetWidth;
+                element.classList.add("pointAlertAnimation");
+
+                element2 = document.getElementById("plus");
+                element2.innerText = "+" + addingPoint;
+                element2.classList.remove("addPointAnimation");
+                element2.offsetWidth = element2.offsetWidth;
+                element2.classList.add("addPointAnimation");
+            }
+        }
+
+        function printActivity(event) {
+            const result = parseFloat(event.target.value) * parseFloat(localStorage.basal_value);
+            document.getElementById("activity_result").innerText = result.toFixed(2);
+            document.getElementById("tdee_result").innerText = (result + parseFloat(localStorage.basal_value)).toFixed(2);
+        }
+
+        function addPoints(add) {
+            var points = parseInt(localStorage.point_value);
+            points = points + add;
+            document.getElementById("points").innerText = "Points: " + points;
+            localStorage.point_value = points;
+        }
+
+        function getCurrentBasal() {
+            document.getElementById("cur_basal").innerText = "Basal Metabolic Rate: " + localStorage.basal_value;
+        }
+    </script>
+    <nav id="topMenu">
+        <ul>
+            <li><a href="index.html">Profile</a></li>
+            <li><a href="activity.html">Activity</a></li>
+            <li><a href="diet.html">Diet Management</a></li>
+        </ul>
+    </nav>
+</head>
+
+<body>
+    <div id="mainContainer">
+        <!--Page Header-->
+        <h1 id="header">
+            <script>
+                window.onload = function getToday() {
+                    if (localStorage.basal_value == "-1") {
+                        var x = document.getElementById("activity_result");
+                        var y = document.getElementById("tdee_result");
+                        x.style.fontSize = "120%"; 
+                        y.style.fontSize = "120%"; 
+                        x.style.fontFamily = "Helvetica";  
+                        y.style.fontFamily = "Helvetica";    
+                        document.getElementById("activity_result").innerText = "Please enter profile information first";
+                        document.getElementById("tdee_result").innerText = "Please enter profile information first";
+                    }
+                    date = new Date();
+                    year = date.getFullYear();
+                    month = date.getMonth() + 1;
+                    day = date.getDate();
+                    document.getElementById("header").innerText = day + "-" + month + "-" + year;
+                }
+            </script>
+        </h1>
+
+        <!--Metabolic Rates by Activity-->
+        <div id="activityBlock">
+            <br />
+            <div id="title">
+                Metabolic Rate by Activity
+                <div id='cur_basal'><img src onerror='getCurrentBasal()'></div>
+            </div>
+            <div id='activity_result'>0</div>
+            <div id='unit'>kcal</div>
+            <br /><br />
+        </div>
+
+        <!--Total Daily Energy Expenditure-->
+        <div id="tdeeBlock">
+            <br />
+            <div id="title">
+                Total Daily Energy Expenditure
+                <div id='cur_basal'><img src onerror='getCurrentBasal()'></div>
+            </div>
+            <div id='tdee_result'>0</div>
+            <div id='unit'>kcal</div>
+            <br /><br />
+        </div>
+
+        <!--Sleeping Time-->
+        <div id="slpBlock">
+            <dl>
+                <dt id="title">Sleeping Hours</dt>
+                <br />
+                <input id='bedtime' value="hh:mm" / onchange='printSleepingHours()'> ~
+                <input id='risingtime' value="hh:mm" onchange='printSleepingHours()' />
+                <div id='sleeping_hours'></div>
+                <div id='sleeping_result'></div>
+            </dl>
+        </div>
+
+        <!--Water-->
+        <div id="waterBlock">
+            <dl>
+                <dt id="title">Fluid Intake</dt>
+                <br />
+                <input id='water' value=0 onchange='printWater()' />
+                <div id='unit'>L</div>
+                <div id='water_result'></div>
+            </dl>
+        </div>
+
+        <!--Activity Input-->
+        <div id="activityInputBlock">
+            <br />
+            <div id="title">Amount of Activity</div>
+            <input type='radio' name='gender' value='0.2' onclick='printActivity(event)' />Low <br />
+            <input type='radio' name='gender' value='0.375' onclick='printActivity(event)' />Relatively Low <br />
+            <input type='radio' name='gender' value='0.555' onclick='printActivity(event)' />Adequate<br />
+            <input type='radio' name='gender' value='0.725' onclick='printActivity(event)' />Relatively High<br />
+            <input type='radio' name='gender' value='0.9' onclick='printActivity(event)' />High<br />
+            <br />
+        </div>
+
+        <!--Page Footer-->
+        <div id="footer">
+            <br />
+            <div id='plus'>+0</div>
+            <div id='points'><img src onerror='addPoints(0)'></div>
+            <br />
+        </div>
+    </div>
+</body>
+
+</html>

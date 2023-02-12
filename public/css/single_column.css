@@ -1,0 +1,16 @@
+#mainContainer > div {
+    display: block;
+    width: 100%;
+    margin: 0% auto;
+    margin-bottom: 2%;
+    float: none;
+}
+#menu {
+    padding-bottom: 60%;
+}
+#mainContainer #header {
+    width: 415px;
+}
+#promotion {
+    font-size: 40%;
+}
